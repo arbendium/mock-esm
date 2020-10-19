@@ -25,7 +25,7 @@ export function resolve(specifier, context, defaultResolver) {
 
 	const { url } = defaultResolver(specifier, context);
 
-	if (specifier !== 'mock-esm' && !url.startsWith('nodejs:') && typeof context.parentURL === 'string') {
+	if (specifier !== 'mock-esm' && !url.startsWith('nodejs:') && !url.startsWith('node:') && typeof context.parentURL === 'string') {
 		const { searchParams } = new URL(context.parentURL);
 		const mockId = searchParams.get('mock-esm-id');
 
