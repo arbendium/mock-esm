@@ -2,7 +2,7 @@
   "type": "module",
   "name": "mock-esm",
   "version": "1.0.0",
-  "description": "Small mocking library for native ESM-based codebases",
+  "description": "A small mocking library for Node ESM based codebase",
   "keywords": [
     "mock",
     "esm",

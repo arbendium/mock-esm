@@ -1,10 +1,10 @@
-Since the only other mocking tool I've found ([testdouble.js](https://github.com/testdouble/testdouble.js)) which supposedly [supports native ESM](https://dev.to/giltayar/mock-all-you-want-supporting-es-modules-in-the-testdouble-js-mocking-library-3gh1) does not fit for me, I decided try and create my own.
+#### A small mocking library for Node ESM based codebase
 
 **Warning:** This library uses [custom ESM loaders](https://nodejs.org/api/esm.html#esm_experimental_loaders) which is very much experimental. Just few weeks ago this library didn't work because of how NodeJS handled CommonJS modules with query parameters. I have no idea if they actually fixed it or what but it seems to work now. Let me know if you any problems.
 
 ## Usage
 
-```
+```js
 import mock from 'mock-esm';
 
 const mockedConfig = { listen: { port: 8080 } }
