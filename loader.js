@@ -5,7 +5,7 @@ export function resolve(specifier, context, defaultResolver) {
 	if (specifier.startsWith('mock-esm:')) {
 		const [mockId, realSpecifier, mockedModules] = JSON.parse(specifier.slice(9));
 
-		const exports = Object.fromEntries(Object.entries(mockedModules).map(
+		const exports = Object.fromEntries(mockedModules.map(
 			([specifier, exports]) => [defaultResolver(specifier, context).url, [specifier, exports]]
 		));
 

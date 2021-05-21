@@ -1,22 +1,18 @@
 const mocks = new Map();
 
-export default async function(importModule, specifier, moduleMocks) {
+export default function(importModule, specifier, moduleMocks) {
 	const mockId = Math.random().toString().split('.')[1];
 
 	mocks.set(mockId, moduleMocks);
 
-	const mockedModules = {};
-	for (const mockedModuleSpecifier in moduleMocks) {
-		mockedModules[mockedModuleSpecifier] = Object.keys(moduleMocks[mockedModuleSpecifier]);
+	const exports = Object.entries(moduleMocks)
+		.map(([specifier, exports]) => [specifier, Object.keys(exports)])
+
+	if (Array.isArray(specifier)) {
+		return specifier.map(specifier => importModule(`mock-esm:${JSON.stringify([mockId, specifier, exports])}`));
 	}
 
-	const serialized = JSON.stringify([
-		mockId,
-		specifier,
-		mockedModules
-	]);
-
-	return importModule(`mock-esm:${serialized}`);
+	return importModule(`mock-esm:${JSON.stringify([mockId, specifier, exports])}`);
 }
 
 export function getMockedModuleExports(mockId, mockedModuleSpecifier) {

@@ -22,7 +22,7 @@ const app = await mock(specifier => import(specifier), './app.js', {
 `mock(importCallback, moduleSpecifier, mocks)`
 
  - `importCallback` - since literally every single mocking library sucks at module resolution I didn't even try and just use this hack. This should always be `specifier => import(specifier);`.
- - `moduleSpecifier` - root module you want to import
+ - `moduleSpecifier` - root module or array of root modules you want to import
  - `mocks` - module specifier -> exports maps. Exports are always identifier -> value maps, even for CommonJS modules (since all mocks are exposed as ESM). Use `default` identifier for CommonJS exports.
 
 Limitations/notes:
