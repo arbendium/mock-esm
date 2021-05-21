@@ -3,9 +3,19 @@
   "name": "mock-esm",
   "version": "1.0.0",
   "description": "Small mocking library for native ESM-based codebases",
+  "keywords": [
+    "mock",
+    "esm",
+    "loader",
+    "test"
+  ],
   "author": "Keijo Kapp <keijo.kapp@gmail.com>",
   "license": "ISC",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "loader.js"
+  ],
   "scripts": {
     "test": "node --experimental-loader ./loader.js test.js"
   },
