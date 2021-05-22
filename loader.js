@@ -3,13 +3,14 @@ import { URL } from 'url';
 
 export function resolve(specifier, context, defaultResolver) {
 	if (specifier.startsWith('mock-esm:')) {
-		const [mockId, realSpecifier, mockedModules] = JSON.parse(specifier.slice(9));
+		const [mockId, realSpecifier, parentURL, mockedModules] = JSON.parse(specifier.slice(9));
+		const emulatedContext = { ...context, parentURL };
 
 		const exports = Object.fromEntries(mockedModules.map(
-			([specifier, exports]) => [defaultResolver(specifier, context).url, [specifier, exports]]
+			([specifier, exports]) => [defaultResolver(specifier, emulatedContext).url, [specifier, exports]]
 		));
 
-		const { url } = defaultResolver(realSpecifier, context);
+		const { url } = defaultResolver(realSpecifier, emulatedContext);
 		return {
 			// TODO: account for URL-s which already have query parameters
 			url: `${url}?mock-esm-id=${mockId}&mock-esm-exports=${JSON.stringify(exports)}`

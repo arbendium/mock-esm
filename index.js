@@ -1,18 +1,23 @@
 const mocks = new Map();
 
-export default function(importModule, specifier, moduleMocks) {
-	const mockId = Math.random().toString().split('.')[1];
+let mockIdCounter = 0;
+
+export default function(parentUrl, moduleMocks) {
+	const mockId = String(++mockIdCounter);
 
 	mocks.set(mockId, moduleMocks);
 
 	const exports = Object.entries(moduleMocks)
 		.map(([specifier, exports]) => [specifier, Object.keys(exports)])
 
-	if (Array.isArray(specifier)) {
-		return specifier.map(specifier => importModule(`mock-esm:${JSON.stringify([mockId, specifier, exports])}`));
+	return {
+		load(specifier) {
+			return import(`mock-esm:${JSON.stringify([mockId, specifier, parentUrl, exports])}`);
+		},
+		cleanup() {
+			mocks.delete(mockId);
+		}
 	}
-
-	return importModule(`mock-esm:${JSON.stringify([mockId, specifier, exports])}`);
 }
 
 export function getMockedModuleExports(mockId, mockedModuleSpecifier) {

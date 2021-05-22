@@ -7,7 +7,7 @@ async function run() {
 	const mockValue3 = Symbol();
 	const mockValue4 = Symbol();
 
-	const app = await mock(specifier => import(specifier), './test-app/index.js', {
+	const { load } = mock(import.meta.url, {
 		'./test-app/mocked-module.js': {
 			default: mockValue1,
 			someExport: mockValue2
@@ -16,14 +16,16 @@ async function run() {
 			default: mockValue3,
 			someExport: mockValue4
 		}
-	})
+	});
 
-	assert.equal(app.nonMockedModule.default, 'koer');
-	assert.equal(app.nonMockedCjsModule.default, 'kass');
-	assert.equal(app.mockedModule.default, mockValue1);
-	assert.equal(app.mockedModule.someExport, mockValue2);
-	assert.equal(app.mockedCjsModule.default, mockValue3);
-	assert.equal(app.mockedCjsModule.someExport, mockValue4);
+	const app = await load('./test-app/index.js');
+
+	assert.strictEqual(app.nonMockedModule.default, 'koer');
+	assert.strictEqual(app.nonMockedCjsModule.default, 'kass');
+	assert.strictEqual(app.mockedModule.default, mockValue1);
+	assert.strictEqual(app.mockedModule.someExport, mockValue2);
+	assert.strictEqual(app.mockedCjsModule.default, mockValue3);
+	assert.strictEqual(app.mockedCjsModule.someExport, mockValue4);
 }
 
 run().catch(console.error);
