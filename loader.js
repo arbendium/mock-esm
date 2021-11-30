@@ -1,6 +1,21 @@
 import { extname } from 'path';
 import { URL } from 'url';
 
+function getFormatNew(url, defaultFormat) {
+	const { searchParams } = new URL(url);
+	const exports = JSON.parse(searchParams.get('mock-esm-exports'));
+
+	if (exports && url.split('?')[0] in exports) {
+		return 'module';
+	}
+
+	if (url.startsWith('file:') && !extname(url)) {
+		return 'commonjs';
+	}
+
+	return defaultFormat;
+}
+
 export function resolve(specifier, context, defaultResolver) {
 	if (specifier.startsWith('mock-esm:')) {
 		const [mockId, realSpecifier, parentURL, mockedModules] = JSON.parse(specifier.slice(9));
@@ -10,31 +25,41 @@ export function resolve(specifier, context, defaultResolver) {
 			([specifier, exports]) => [defaultResolver(specifier, emulatedContext).url, [specifier, exports]]
 		));
 
-		const { url } = defaultResolver(realSpecifier, emulatedContext);
+		const { url, format } = defaultResolver(realSpecifier, emulatedContext);
+
+		// TODO: account for URL-s which already have query parameters
+		const newUrl = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${JSON.stringify(exports)}`;
+
 		return {
-			// TODO: account for URL-s which already have query parameters
-			url: `${url}?mock-esm-id=${mockId}&mock-esm-exports=${JSON.stringify(exports)}`
+			url: newUrl,
+			format: getFormatNew(newUrl, format)
 		};
 	}
 
-	const { url } = defaultResolver(specifier, context);
+	const defaultResolverResult = defaultResolver(specifier, context);
+	let { url } = defaultResolverResult;
 
 	if (specifier !== 'mock-esm' && !url.startsWith('nodejs:') && !url.startsWith('node:') && typeof context.parentURL === 'string') {
 		const { searchParams } = new URL(context.parentURL);
 		const mockId = searchParams.get('mock-esm-id');
 
 		if (mockId) {
-			return {
-				// TODO: account for URL-s which already have query parameters
-				url: `${url}?mock-esm-id=${mockId}&mock-esm-exports=${searchParams.get('mock-esm-exports')}`
-			};
+			// TODO: account for URL-s which already have query parameters
+			url = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${searchParams.get('mock-esm-exports')}`
 		}
 	}
 
-	return { url };
+	return {
+		url,
+		format: getFormatNew(url, defaultResolverResult.format)
+	};
 }
 
 export async function getSource(url, context, defaultGetSource) {
+	return load(url, context, defaultGetSource)
+}
+
+export async function load(url, context, defaultGetSource) {
 	const { searchParams } = new URL(url);
 	const mockId = searchParams.get('mock-esm-id');
 
@@ -57,6 +82,7 @@ export async function getSource(url, context, defaultGetSource) {
 			);
 
 			return {
+				format: context.format,
 				source: `import { getMockedModuleExports } from 'mock-esm';
 
 const ${temporaryVariableName} = getMockedModuleExports(${JSON.stringify(mockId)}, ${JSON.stringify(specifier)});
