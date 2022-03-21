@@ -16,16 +16,19 @@ function getFormatNew(url, defaultFormat) {
 	return defaultFormat;
 }
 
-export function resolve(specifier, context, defaultResolver) {
+export async function resolve(specifier, context, defaultResolver) {
 	if (specifier.startsWith('mock-esm:')) {
 		const [mockId, realSpecifier, parentURL, mockedModules] = JSON.parse(specifier.slice(9));
 		const emulatedContext = { ...context, parentURL };
 
-		const exports = Object.fromEntries(mockedModules.map(
-			([specifier, exports]) => [defaultResolver(specifier, emulatedContext).url, [specifier, exports]]
-		));
+		const [{ url, format }, resolveResults] = await Promise.all([
+			defaultResolver(realSpecifier, emulatedContext),
+			Promise.all(mockedModules.map(
+				async ([specifier, exports]) => [(await defaultResolver(specifier, emulatedContext)).url, [specifier, exports]]
+			))
+		]);
 
-		const { url, format } = defaultResolver(realSpecifier, emulatedContext);
+		const exports = Object.fromEntries(resolveResults);
 
 		// TODO: account for URL-s which already have query parameters
 		const newUrl = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${JSON.stringify(exports)}`;
@@ -36,7 +39,7 @@ export function resolve(specifier, context, defaultResolver) {
 		};
 	}
 
-	const defaultResolverResult = defaultResolver(specifier, context);
+	const defaultResolverResult = await defaultResolver(specifier, context);
 	let { url } = defaultResolverResult;
 
 	if (specifier !== 'mock-esm' && !url.startsWith('nodejs:') && !url.startsWith('node:') && typeof context.parentURL === 'string') {

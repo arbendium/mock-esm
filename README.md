@@ -1,6 +1,6 @@
 #### A small mocking library for Node ESM based codebase
 
-**Warning:** This library uses [custom ESM loaders](https://nodejs.org/api/esm.html#esm_experimental_loaders) which is very much experimental. Just few weeks ago this library didn't work because of how NodeJS handled CommonJS modules with query parameters. I have no idea if they actually fixed it or what but it seems to work now. Let me know if you any problems.
+**Warning:** This library uses [custom ESM loaders](https://nodejs.org/api/esm.html#esm_experimental_loaders) which is very much experimental. The API gets changed every now in an incompatible way so this library occasionally breaks down.
 
 ## Usage
 
