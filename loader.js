@@ -62,7 +62,7 @@ export async function getSource(url, context, defaultGetSource) {
 	return load(url, context, defaultGetSource)
 }
 
-export async function load(url, context, defaultGetSource) {
+export async function load(url, context, nextLoad) {
 	const { searchParams } = new URL(url);
 	const mockId = searchParams.get('mock-esm-id');
 
@@ -86,6 +86,7 @@ export async function load(url, context, defaultGetSource) {
 
 			return {
 				format: context.format,
+				shortCircuit: true,
 				source: `import { getMockedModuleExports } from 'mock-esm';
 
 const ${temporaryVariableName} = getMockedModuleExports(${JSON.stringify(mockId)}, ${JSON.stringify(specifier)});
@@ -96,7 +97,7 @@ ${exportsSource.join('\n')}
 		}
 	}
 
-	return defaultGetSource(url, context);
+	return nextLoad(url, context);
 }
 
 export function getFormat(url, context, defaultGetFormat) {
