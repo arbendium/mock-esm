@@ -31,7 +31,7 @@ export async function resolve(specifier, context, defaultResolver) {
 		const exports = Object.fromEntries(resolveResults);
 
 		// TODO: account for URL-s which already have query parameters
-		const newUrl = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${JSON.stringify(exports)}`;
+		const newUrl = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${encodeURIComponent(JSON.stringify(exports))}`;
 
 		return {
 			url: newUrl,
@@ -48,7 +48,7 @@ export async function resolve(specifier, context, defaultResolver) {
 
 		if (mockId) {
 			// TODO: account for URL-s which already have query parameters
-			url = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${searchParams.get('mock-esm-exports')}`
+			url = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${encodeURIComponent(searchParams.get('mock-esm-exports'))}`
 		}
 	}
 
