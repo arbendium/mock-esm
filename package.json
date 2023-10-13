@@ -13,7 +13,8 @@
   "license": "ISC",
   "exports": {
     ".": "./index.js",
-    "./loader": "./loader.js"
+    "./loader": "./loader.js",
+    "./loader.js": "./loader.js"
   },
   "main": "index.js",
   "files": [
