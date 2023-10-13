@@ -1,5 +1,5 @@
 import { register } from "node:module";
-register("./loader.js", import.meta.url);
+register("mock-esm/loader", import.meta.url);
 
 import assert from 'assert';
 import mock from 'mock-esm'; // has to be imported using this exact module specifier

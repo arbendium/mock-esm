@@ -11,6 +11,10 @@
   ],
   "author": "Keijo Kapp <keijo.kapp@gmail.com>",
   "license": "ISC",
+  "exports": {
+    ".": "./index.js",
+    "./loader": "./loader.js"
+  },
   "main": "index.js",
   "files": [
     "index.js",
