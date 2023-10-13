@@ -1,8 +1,8 @@
 import { register } from "node:module";
-register("mock-esm/loader", import.meta.url);
+register("@arbendium/mock-esm/loader", import.meta.url);
 
 import assert from 'assert';
-import mock from 'mock-esm'; // has to be imported using this exact module specifier
+import mock from '@arbendium/mock-esm'; // has to be imported using this exact module specifier
 
 const mockValue1 = Symbol();
 const mockValue2 = Symbol();

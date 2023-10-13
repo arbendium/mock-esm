@@ -42,7 +42,7 @@ export async function resolve(specifier, context, defaultResolver) {
 	const defaultResolverResult = await defaultResolver(specifier, context);
 	let { url } = defaultResolverResult;
 
-	if (specifier !== 'mock-esm' && !url.startsWith('nodejs:') && !url.startsWith('node:') && typeof context.parentURL === 'string') {
+	if (specifier !== '@arbendium/mock-esm' && !url.startsWith('nodejs:') && !url.startsWith('node:') && typeof context.parentURL === 'string') {
 		const { searchParams } = new URL(context.parentURL);
 		const mockId = searchParams.get('mock-esm-id');
 
@@ -87,7 +87,7 @@ export async function load(url, context, nextLoad) {
 			return {
 				format: context.format,
 				shortCircuit: true,
-				source: `import { getMockedModuleExports } from 'mock-esm';
+				source: `import { getMockedModuleExports } from '@arbendium/mock-esm';
 
 const ${temporaryVariableName} = getMockedModuleExports(${JSON.stringify(mockId)}, ${JSON.stringify(specifier)});
 

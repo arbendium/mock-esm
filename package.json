@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "name": "mock-esm",
+  "name": "@arbendium/mock-esm",
   "version": "2.2.0",
   "description": "A small mocking library for Node ESM based codebase",
   "keywords": [
@@ -11,6 +11,7 @@
   ],
   "author": "Keijo Kapp <keijo.kapp@gmail.com>",
   "license": "ISC",
+  "repository": "github:arbendium/mock-esm",
   "exports": {
     ".": "./index.js",
     "./loader": "./loader.js",
@@ -25,6 +26,6 @@
     "test": "node test.js"
   },
   "devDependencies": {
-    "mock-esm": "."
+    "@arbendium/mock-esm": "."
   }
 }
