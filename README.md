@@ -1,10 +1,15 @@
 #### A small mocking library for Node ESM based codebase
 
-**Warning:** This library uses [custom ESM loaders](https://nodejs.org/api/esm.html#esm_experimental_loaders) which is very much experimental. The API gets changed every now in an incompatible way so this library occasionally breaks down.
+**Warning:** This library uses [customization hooks](https://nodejs.org/api/module.html#customization-hooks) which, at the time of writing, is in a "Release candidate" stage.
 
 ## Usage
 
 ```js
+// Instead of these two lines, the following Node CLI option would also work if the application is run in the package directory:
+// --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("mock-esm/loader.js", pathToFileURL("./"));'
+import { register } from "node:module";
+register("mock-esm/loader", import.meta.url);
+
 import mock from 'mock-esm';
 
 const mockedConfig = { listen: { port: 8080 } }
