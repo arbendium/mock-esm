@@ -5,10 +5,8 @@
 ## Usage
 
 ```js
-// Instead of these two lines, the following Node CLI option would also work if the application is run in the package directory:
-// --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("@arbendium/mock-esm/loader.js", pathToFileURL("./"));'
-import { register } from "node:module";
-register("@arbendium/mock-esm/loader", import.meta.url);
+import { registerHooks } from "node:module";
+registerHooks(await import("@arbendium/mock-esm/loader"));
 
 import mock from '@arbendium/mock-esm';
 

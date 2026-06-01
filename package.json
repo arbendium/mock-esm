@@ -25,7 +25,7 @@
     "loader.d.ts"
   ],
   "scripts": {
-    "test": "node test.js"
+    "test": "node --test test/synchronous.js test/asynchronous.js"
   },
   "devDependencies": {
     "@arbendium/mock-esm": "."

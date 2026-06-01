@@ -1,4 +1,10 @@
-import { LoadHook, ResolveHook } from 'node:module';
+import type { LoadHook, LoadHookSync, ResolveHook, ResolveHookSync } from 'node:module';
 
-export const load: LoadHook;
-export const resolve: ResolveHook;
+export const load: {
+	(...parameters: Parameters<LoadHook>): ReturnType<LoadHook>
+	(...parameters: Parameters<LoadHookSync>): ReturnType<LoadHookSync>
+};
+export const resolve: {
+	(...parameters: Parameters<ResolveHook>): ReturnType<ResolveHook>
+	(...parameters: Parameters<ResolveHookSync>): ReturnType<ResolveHookSync>
+};;
