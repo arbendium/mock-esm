@@ -1,7 +1,7 @@
 import { extname } from 'path';
 import { URL } from 'url';
 
-function getFormatNew(url, defaultFormat) {
+function getFormat(url, defaultFormat) {
 	const { searchParams } = new URL(url);
 	const exports = JSON.parse(searchParams.get('mock-esm-exports'));
 
@@ -35,7 +35,7 @@ export async function resolve(specifier, context, defaultResolver) {
 
 		return {
 			url: newUrl,
-			format: getFormatNew(newUrl, format)
+			format: getFormat(newUrl, format)
 		};
 	}
 
@@ -54,12 +54,8 @@ export async function resolve(specifier, context, defaultResolver) {
 
 	return {
 		url,
-		format: getFormatNew(url, defaultResolverResult.format)
+		format: getFormat(url, defaultResolverResult.format)
 	};
-}
-
-export async function getSource(url, context, defaultGetSource) {
-	return load(url, context, defaultGetSource)
 }
 
 export async function load(url, context, nextLoad) {
@@ -98,23 +94,4 @@ ${exportsSource.join('\n')}
 	}
 
 	return nextLoad(url, context);
-}
-
-export function getFormat(url, context, defaultGetFormat) {
-	const { searchParams } = new URL(url);
-	const exports = JSON.parse(searchParams.get('mock-esm-exports'));
-
-	if (exports && url.split('?')[0] in exports) {
-		return {
-			format: 'module'
-		};
-	}
-
-	if (url.startsWith('file:') && !extname(url)) {
-		return {
-			format: 'commonjs'
-		};
-	}
-
-	return defaultGetFormat(url, context);
 }
