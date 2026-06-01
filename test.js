@@ -1,5 +1,5 @@
-import { register } from "node:module";
-register("@arbendium/mock-esm/loader", import.meta.url);
+import { registerHooks } from "node:module";
+registerHooks(await import("@arbendium/mock-esm/loader"));
 
 import assert from 'assert';
 import mock from '@arbendium/mock-esm'; // has to be imported using this exact module specifier

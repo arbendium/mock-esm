@@ -24,53 +24,73 @@ function getFormat(url, defaultFormat) {
 /**
  * @type {import('node:module').ResolveHook}
  */
-export async function resolve(specifier, context, defaultResolver) {
+export function resolve(specifier, context, defaultResolver) {
 	if (specifier.startsWith('mock-esm:')) {
 		/** @type {[string, string, string, [string, string[]][]]} */
 		const [mockId, realSpecifier, parentURL, mockedModules] = JSON.parse(specifier.slice(9));
 		const emulatedContext = { ...context, parentURL };
 
-		const [{ url, format }, resolveResults] = await Promise.all([
-			defaultResolver(realSpecifier, emulatedContext),
-			Promise.all(mockedModules.map(
-				async ([specifier, exports]) => [(await defaultResolver(specifier, emulatedContext)).url, [specifier, exports]]
-			))
-		]);
+		const defaultResolverResult = defaultResolver(realSpecifier, emulatedContext);
 
-		const exports = Object.fromEntries(resolveResults);
+		if (defaultResolverResult instanceof Promise) {
+			return Promise.all([
+				defaultResolverResult,
+				Promise.all(mockedModules.map(
+					async ([specifier, exports]) => [(await defaultResolver(specifier, emulatedContext)).url, [specifier, exports]]
+				))
+			])
+				.then(([defaultResolverResult, resolveResults]) => complete(defaultResolverResult, resolveResults));
+		} else {
+			const resolveResults = mockedModules.map(
+				([specifier, exports]) => [defaultResolver(specifier, emulatedContext).url, [specifier, exports]]
+			);
 
-		// TODO: account for URL-s which already have query parameters
-		const newUrl = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${encodeURIComponent(JSON.stringify(exports))}`;
+			return complete(defaultResolverResult, resolveResults);
+		}
 
-		return {
-			url: newUrl,
-			format: getFormat(newUrl, format)
-		};
-	}
+		function complete({ url, format }, resolveResults) {
+			const exports = Object.fromEntries(resolveResults);
 
-	const defaultResolverResult = await defaultResolver(specifier, context);
-	let { url } = defaultResolverResult;
-
-	if (specifier !== '@arbendium/mock-esm' && !url.startsWith('nodejs:') && !url.startsWith('node:') && typeof context.parentURL === 'string') {
-		const { searchParams } = new URL(context.parentURL);
-		const mockId = searchParams.get('mock-esm-id');
-
-		if (mockId) {
 			// TODO: account for URL-s which already have query parameters
-			url = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${encodeURIComponent(/** @type {string} */(searchParams.get('mock-esm-exports')))}`
+			const newUrl = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${encodeURIComponent(JSON.stringify(exports))}`;
+
+			return {
+				url: newUrl,
+				format: getFormat(newUrl, format)
+			};
 		}
 	}
 
-	return {
-		url,
-		format: getFormat(url, defaultResolverResult.format)
-	};
+	const defaultResolverResult = defaultResolver(specifier, context);
+
+	if (defaultResolverResult instanceof Promise) {
+		return defaultResolverResult.then(complete);
+	}
+
+	return complete(defaultResolverResult);
+
+	function complete({ url, format }) {
+		if (specifier !== '@arbendium/mock-esm' && !url.startsWith('nodejs:') && !url.startsWith('node:') && typeof context.parentURL === 'string') {
+			const { searchParams } = new URL(context.parentURL);
+			const mockId = searchParams.get('mock-esm-id');
+
+			if (mockId) {
+				// TODO: account for URL-s which already have query parameters
+				url = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${encodeURIComponent(/** @type {string} */(searchParams.get('mock-esm-exports')))}`
+			}
+		}
+
+		return {
+			url,
+			format: getFormat(url, defaultResolverResult.format)
+		};
+	}
 }
 
 /**
  * @type {import('node:module').LoadHook}
  */
-export async function load(url, context, nextLoad) {
+export function load(url, context, nextLoad) {
 	const { searchParams } = new URL(url);
 	const mockId = searchParams.get('mock-esm-id');
 
