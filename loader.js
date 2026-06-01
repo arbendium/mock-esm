@@ -1,9 +1,14 @@
-import { extname } from 'path';
-import { URL } from 'url';
+import { extname } from 'node:path';
+import { URL } from 'node:url';
 
+/**
+ * @param {string} url
+ * @param {string | null | undefined} defaultFormat
+ * @returns {string | null | undefined}
+ */
 function getFormat(url, defaultFormat) {
 	const { searchParams } = new URL(url);
-	const exports = JSON.parse(searchParams.get('mock-esm-exports'));
+	const exports = JSON.parse(/** @type {string} */(searchParams.get('mock-esm-exports')));
 
 	if (exports && url.split('?')[0] in exports) {
 		return 'module';
@@ -16,8 +21,12 @@ function getFormat(url, defaultFormat) {
 	return defaultFormat;
 }
 
+/**
+ * @type {import('node:module').ResolveHook}
+ */
 export async function resolve(specifier, context, defaultResolver) {
 	if (specifier.startsWith('mock-esm:')) {
+		/** @type {[string, string, string, [string, string[]][]]} */
 		const [mockId, realSpecifier, parentURL, mockedModules] = JSON.parse(specifier.slice(9));
 		const emulatedContext = { ...context, parentURL };
 
@@ -48,7 +57,7 @@ export async function resolve(specifier, context, defaultResolver) {
 
 		if (mockId) {
 			// TODO: account for URL-s which already have query parameters
-			url = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${encodeURIComponent(searchParams.get('mock-esm-exports'))}`
+			url = `${url}?mock-esm-id=${mockId}&mock-esm-exports=${encodeURIComponent(/** @type {string} */(searchParams.get('mock-esm-exports')))}`
 		}
 	}
 
@@ -58,12 +67,16 @@ export async function resolve(specifier, context, defaultResolver) {
 	};
 }
 
+/**
+ * @type {import('node:module').LoadHook}
+ */
 export async function load(url, context, nextLoad) {
 	const { searchParams } = new URL(url);
 	const mockId = searchParams.get('mock-esm-id');
 
 	if (mockId) {
-		const mockedModules = JSON.parse(searchParams.get('mock-esm-exports'));
+		/** @type {Record<string, [string, string[]]>} */
+		const mockedModules = JSON.parse(/** @type {string} */(searchParams.get('mock-esm-exports')));
 		const realUrl = url.split('?')[0];
 
 		if (realUrl in mockedModules) {

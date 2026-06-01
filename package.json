@@ -20,7 +20,9 @@
   "main": "index.js",
   "files": [
     "index.js",
-    "loader.js"
+    "index.d.ts",
+    "loader.js",
+    "loader.d.ts"
   ],
   "scripts": {
     "test": "node test.js"

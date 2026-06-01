@@ -1,8 +1,17 @@
+/** @type {Map<string, Record<string, Record<string, unknown>>>} */
 const mocks = new Map();
 
 let mockIdCounter = 0;
 
-export default function(parentUrl, moduleMocks) {
+/**
+ * @param {string} parentUrl
+ * @param {Record<string, Record<string, unknown>>} moduleMocks
+ * @returns {{
+ *   load(specifier: string): Record<string, any>
+ *   cleanup(): void
+ * }}
+ */
+export default function mock(parentUrl, moduleMocks) {
 	const mockId = String(++mockIdCounter);
 
 	mocks.set(mockId, moduleMocks);
@@ -20,6 +29,11 @@ export default function(parentUrl, moduleMocks) {
 	}
 }
 
+/**
+ * @param {string} mockId
+ * @param {string} mockedModuleSpecifier
+ * @returns {Record<string, unknown>}
+ */
 export function getMockedModuleExports(mockId, mockedModuleSpecifier) {
 	const mock = mocks.get(mockId);
 	if (!mock) {
